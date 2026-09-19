@@ -1,0 +1,63 @@
+name: Build Windows app
+
+# This file lives on the windows-build branch only. main has no .github folder,
+# so the tree check (G0-22) stays true. See CHANGELOG.md.
+on:
+  push:
+    branches: [windows-build]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the app
+        run: npm run build
+
+      # Makes the installer and the unpacked app folder. The appId is the
+      # electron-builder default, a placeholder until you choose one.
+      - name: Package for Windows
+        run: npx electron-builder --win nsis --config build/electron-builder.yml
+
+      # The next four steps report problems but do not stop the build,
+      # so you still get the .exe while we read the results.
+      - name: Type check
+        continue-on-error: true
+        run: npm run typecheck
+
+      - name: Lint
+        continue-on-error: true
+        run: npm run lint
+
+      - name: Tests
+        continue-on-error: true
+        run: npm test
+
+      - name: Smoke test the packaged app
+        continue-on-error: true
+        run: node scripts/smoke.mjs
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v7
+        with:
+          name: xr-sandbox-windows-installer
+          path: dist/*.exe
+          if-no-files-found: error
+
+      - name: Upload unpacked app
+        uses: actions/upload-artifact@v7
+        with:
+          name: xr-sandbox-windows-unpacked
+          path: dist/win-unpacked
+          if-no-files-found: error
