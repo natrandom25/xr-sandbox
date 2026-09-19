@@ -1,0 +1,12 @@
+# Packaging config. Slice 0 builds an unpacked directory only (--dir).
+# No installer target yet: see CHANGELOG.md, "Carried to later slices".
+productName: XR Technology Sandbox
+directories:
+  output: dist
+  buildResources: build
+files:
+  - out/**/*
+  - package.json
+  - "!**/*.map"
+asar: true
+npmRebuild: false

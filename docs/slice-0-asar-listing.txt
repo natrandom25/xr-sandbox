@@ -1,0 +1,8 @@
+/out
+/out/main
+/out/main/index.js
+/out/renderer
+/out/renderer/assets
+/out/renderer/assets/index-C0gGK0Rn.js
+/out/renderer/index.html
+/package.json
